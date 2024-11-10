@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RGB Colors Animation</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #222;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            overflow: auto;
+        }
+
+        .color-section {
+            margin: 20px 0;
+        }
+
+        .color-section h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .color-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            max-width: 1200px;
+        }
+
+        .color-box {
+            width: 100px;
+            height: 100px;
+            margin: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+            position: relative;
+            color: #fff;
+            font-size: 12px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .color-box:hover {
+            transform: scale(1.1);
+        }
+
+        .color-name {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            color: #000;
+            text-align: center;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .shades-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .shade-box {
+            width: 100px;
+            height: 100px;
+            margin: 10px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="color-section" id="redSection">
+        <h2>Red Colors</h2>
+        <div class="color-container" id="redContainer"></div>
+    </div>
+    <div class="color-section" id="orangeSection">
+        <h2>Orange Colors</h2>
+        <div class="color-container" id="orangeContainer"></div>
+    </div>
+    <div class="color-section" id="yellowSection">
+        <h2>Yellow Colors</h2>
+        <div class="color-container" id="yellowContainer"></div>
+    </div>
+    <div class="color-section" id="greenSection">
+        <h2>Green Colors</h2>
+        <div class="color-container" id="greenContainer"></div>
+    </div>
+    <div class="color-section" id="blueSection">
+        <h2>Blue Colors</h2>
+        <div class="color-container" id="blueContainer"></div>
+    </div>
+    <div class="color-section" id="indigoSection">
+        <h2>Indigo Colors</h2>
+        <div class="color-container" id="indigoContainer"></div>
+    </div>
+    <div class="color-section" id="violetSection">
+        <h2>Violet Colors</h2>
+        <div class="color-container" id="violetContainer"></div>
+    </div>
+
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="colorInfo"></h2>
+            <div class="shades-container" id="shadesContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        const generateColors = (numColors) => {
+            const colors = [];
+            for (let i = 0; i < numColors; i++) {
+                const r = Math.floor(Math.random() * 256);
+                const g = Math.floor(Math.random() * 256);
+                const b = Math.floor(Math.random() * 256);
+                colors.push({ name: `rgb(${r}, ${g}, ${b})`, value: `rgb(${r}, ${g}, ${b})`, red: r, green: g, blue: b });
+            }
+            return colors;
+        };
+
+        const generateShades = (color) => {
+            const shades = [];
+            const step = 51; // Adjust to get five shades
+            for (let i = 0; i <= 255; i += step) {
+                const r = Math.max(0, color.red - i);
+                const g = Math.max(0, color.green - i);
+                const b = Math.max(0, color.blue - i);
+                shades.push({ name: `rgb(${r}, ${g}, ${b})`, value: `rgb(${r}, ${g}, ${b})`, red: r, green: g, blue: b });
+            }
+            return shades;
+        };
+
+        const classifyColor = (color) => {
+            const { red, green, blue } = color;
+            if (red > 150 && green < 100 && blue < 100) return 'red';
+            if (red > 200 && green > 100 && green < 200 && blue < 100) return 'orange';
+            if (red > 200 && green > 200 && blue < 100) return 'yellow';
+            if (red < 100 && green > 100 && blue < 100) return 'green';
+            if (red < 100 && green < 100 && blue > 150) return 'blue';
+            if (red < 100 && green < 100 && blue > 100 && blue < 200) return 'indigo';
+            if (red > 100 && red < 200 && green < 100 && blue > 100 && blue < 200) return 'violet';
+            return 'others';
+        };
+
+        const colors = generateColors(3000);
+
+        const containers = {
+            red: document.getElementById('redContainer'),
+            orange: document.getElementById('orangeContainer'),
+            yellow: document.getElementById('yellowContainer'),
+            green: document.getElementById('greenContainer'),
+            blue: document.getElementById('blueContainer'),
+            indigo: document.getElementById('indigoContainer'),
+            violet: document.getElementById('violetContainer')
+        };
+
+        const classifiedColors = {
+            red: [],
+            orange: [],
+            yellow: [],
+            green: [],
+            blue: [],
+            indigo: [],
+            violet: []
+        };
+
+        colors.forEach(color => {
+            const category = classifyColor(color);
+            if (classifiedColors[category]) {
+                classifiedColors[category].push(color);
+            }
+        });
+
+        const appendColorsToContainer = (colors, container) => {
+            colors.forEach(color => {
+                const colorBox = document.createElement('div');
+                colorBox.className = 'color-box';
+                colorBox.style.backgroundColor = color.value;
+                colorBox.dataset.color = JSON.stringify(color);
+
+                const colorName = document.createElement('div');
+                colorName.className = 'color-name';
+                colorName.textContent = `${color.name}`;
+
+                colorBox.appendChild(colorName);
+                container.appendChild(colorBox);
+            });
+        };
+
+        Object.keys(classifiedColors).forEach(category => {
+            const container = containers[category];
+            appendColorsToContainer(classifiedColors[category], container);
+        });
+
+        const modal = document.getElementById('myModal');
+        const closeModal = document.querySelector('.close');
+        const colorInfo = document.getElementById('colorInfo');
+        const shadesContainer = document.getElementById('shadesContainer');
+
+        const showModal = (color) => {
+            colorInfo.textContent = `Color: ${color.name}`;
+            shadesContainer.innerHTML = '';
+
+            const shades = generateShades(color);
+
+            shades.forEach(shade => {
+                const shadeBox = document.createElement('div');
+                shadeBox.className = 'shade-box';
+                shadeBox.style.backgroundColor = shade.value;
+                shadeBox.textContent = `${shade.name}`;
+                shadesContainer.appendChild(shadeBox);
+            });
+
+            modal.style.display = 'flex';
+        };
+
+        document.body.addEventListener('click', (e) => {
+            if (e.target.closest('.color-box')) {
+                const color = JSON.parse(e.target.closest('.color-box').dataset.color);
+                showModal(color);
+            }
+        });
+
+        closeModal.onclick = () => {
+            modal.style.display = 'none';
+        };
+
+        window.onclick = (event) => {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        };
+    </script>
+</body>
+</html>
